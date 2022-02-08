@@ -1,0 +1,9 @@
+﻿[*.cs]
+
+# IDE0065: 위치가 잘못된 using 지시문
+dotnet_diagnostic.IDE0065.severity = none
+dotnet_diagnostic.SA1623.severity=silent
+dotnet_diagnostic.SA1101.severity=silent
+dotnet_diagnostic.SA1308.severity=silent
+dotnet_diagnostic.SA1633.severity=silent
+dotnet_diagnostic.SA1503.severity=silent

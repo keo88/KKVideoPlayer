@@ -1,0 +1,30 @@
+﻿<Window x:Class="KKVideoPlayer.Controls.AddDirectoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:KKVideoPlayer.ViewModels"
+        xmlns:local="clr-namespace:KKVideoPlayer.Controls"
+        mc:Ignorable="d" WindowStyle="None" Loaded="Window_Loaded"
+        d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
+        Background="{StaticResource BackgroundBrush}" Height="165" Width="550"> 
+    <Window.Resources>
+        <local:PlaylistPanelControl x:Key="PlaylistControl" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="DirectoryTextBox" Width="500" Height="30" Grid.Column="0" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
+
+        <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="10,0,0,5" Click="SearchButton_Click" VerticalAlignment="Bottom">Search..</Button>
+        <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Column="1" Grid.Row="1" Margin="10,0,10,5" Click="CancelButton_Click" VerticalAlignment="Bottom">Cancel</Button>
+        <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Column="2" Grid.Row="1" Click="SelectButton_Click" Margin="0,0,0,5" VerticalAlignment="Bottom">Select</Button>
+    </Grid>
+</Window>

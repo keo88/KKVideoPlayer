@@ -1,0 +1,100 @@
+﻿<UserControl x:Class="KKVideoPlayer.Controls.VideoControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:KKVideoPlayer.ViewModels"
+             xmlns:local="clr-namespace:KKVideoPlayer.Controls"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
+             Background="{StaticResource BackgroundBrush}" Height="600" Width="750"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Margin" Value="0,5,0,5" />
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Background" Value="WhiteSmoke" />
+            <Setter Property="InputMethod.PreferredImeState" Value="On" />
+            <Setter Property="InputMethod.PreferredImeConversionMode" Value="Native" />
+            <Setter Property="Foreground" Value="{StaticResource BackgroundBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="#9F9F9F" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="10" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Path" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Dvd Id" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Title" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Actress" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Genre" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Release Date" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Series" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="7" Grid.Column="0" Text="Director" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Company" Style="{StaticResource TextBlockStyle}"/>
+
+            <TextBox x:Name="UpdatedFilepath" Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.PathText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedDvdId" Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DvdIdText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedTitle" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.TitleText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedActresses" Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ActorsText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedGenres" Grid.Row="4" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.GenresText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedReleasedate" Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedSeries" Grid.Row="6" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedDirector" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DirectorsText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedCompany" Grid.Row="8" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.CompaniesText, Mode=TwoWay}"/>
+        </Grid>
+        <Grid DockPanel.Dock="Bottom" Height="90">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="45" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="100" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Width="100" Content="Deformat" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="DeformatButton_Click"/>
+                <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Width="100" Content="Format" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="FormatButton_Click"/>
+            </StackPanel>
+            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Grid.Column="1" Grid.ColumnSpan="2" Width="140" 
+                    Content="Completely Delete" HorizontalAlignment="Left" Click="CompleteDeleteButton_Click" Foreground="DarkRed" />
+
+            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Width="200" Content="Get data from web..(WIP)" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="WebCrawlButton_Click"/>
+            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Grid.Column="1" Content="Cancel" Click="CancelButton_Click"/>
+            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Grid.Column="2" Content="Accept" Click="AcceptButton_Click" />
+        </Grid>
+    </DockPanel>
+</UserControl>
