@@ -491,8 +491,8 @@
             }
             */
 
-            WindowTitle = $"{title} - {state} - FFME Player v{AppVersion} "
-                + $"FFmpeg {Library.FFmpegVersionInfo} ({(Debugger.IsAttached ? "Debug" : "Release")})";
+            // WindowTitle = $"KKPlayer v{AppVersion} {title} {state} " + $"FFmpeg {Library.FFmpegVersionInfo} ({(Debugger.IsAttached ? "Debug" : "Release")})";
+            WindowTitle = $"KKPlayer v{AppVersion}";
         }
     }
 }

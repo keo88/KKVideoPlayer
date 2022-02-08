@@ -6,8 +6,8 @@
     using System.Threading.Tasks;
     using System.Windows;
     using FFmpeg.AutoGen;
+    using KKVideoPlayer.ViewModels;
     using Unosquare.FFME;
-    using ViewModels;
 
     /// <summary>
     /// Interaction logic for App.xaml.
