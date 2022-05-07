@@ -22,7 +22,7 @@
     {
         private const string JAVLIBURL = "https://www.javlibrary.com/en/";
         private const string JAVDBURL = "https://javdb.com/";
-        private const string JAVBUSURL = "http://javbus.com/ko/";
+        private const string JAVBUSURL = "https://javbus.com/ko/";
         private readonly HttpClient client;
         private readonly HttpClientHandler handler;
         private ChromeDriverService driverService = null;
@@ -54,13 +54,16 @@
             client = new HttpClient(handler);
 
             // client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36");
+            client.DefaultRequestHeaders.Add("user-agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36");
             client.DefaultRequestHeaders.Add("cache-control", "max-age=0");
-            client.DefaultRequestHeaders.Add("sec-ch-ua", "\\\"Google Chrome\\\";v=\\\"95\\\", \\\"Chromium\\\";v=\\\"95\\\", \\\";Not A Brand\\\";v=\\\"99\\\"");
+            client.DefaultRequestHeaders.Add("sec-ch-ua",
+                "\\\"Google Chrome\\\";v=\\\"95\\\", \\\"Chromium\\\";v=\\\"95\\\", \\\";Not A Brand\\\";v=\\\"99\\\"");
             client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
             client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\\\"Windows\\\"");
             client.DefaultRequestHeaders.Add("upgrade-insecure-requests", "1");
-            client.DefaultRequestHeaders.Add("accept", @"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+            client.DefaultRequestHeaders.Add("accept",
+                @"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
             client.DefaultRequestHeaders.Add("sec-fetch-site", "none");
             client.DefaultRequestHeaders.Add("sec-fetch-mode", "navigate");
             client.DefaultRequestHeaders.Add("sec-fetch-user", "?1");
@@ -167,39 +170,32 @@
             string dvdid_upper = dvdid.ToUpper();
 
             string db_url = $"{JAVDBURL}search?q={dvdid_lower}&f=all/";
-            string bus_url = $"{JAVBUSURL}{dvdid_upper}/";
+            string bus_url = $"{JAVBUSURL}{dvdid_upper}";
 
-            HttpRequestMessage requestUrl = new HttpRequestMessage()
+            HttpResponseMessage responseUrl;
+
+            try
             {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(bus_url),
-            };
-
-            HttpResponseMessage responseUrl = await client.SendAsync(requestUrl, HttpCompletionOption.ResponseContentRead);
+                responseUrl = await client.GetAsync(bus_url);
+            }
+            catch (HttpRequestException)
+            {
+                return false;
+            }
 
             if (responseUrl.RequestMessage.RequestUri.ToString().Contains("http://warning.or.kr") ||
-                responseUrl.StatusCode != System.Net.HttpStatusCode.MovedPermanently)
+                responseUrl.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return false;
 
-            HttpRequestMessage requestRedirect = new HttpRequestMessage()
-            {
-                Method = HttpMethod.Get,
-                RequestUri = responseUrl.Headers.Location,
-            };
-
-            HttpResponseMessage responseRedirect = await client.SendAsync(requestRedirect, HttpCompletionOption.ResponseContentRead);
-            if (responseRedirect.StatusCode == System.Net.HttpStatusCode.NotFound)
-                return false;
-
-            HttpContent html = responseRedirect.Content;
+            HttpContent html = responseUrl.Content;
             string contents;
-
-            using (BrotliStream bs = new BrotliStream(await html.ReadAsStreamAsync(), System.IO.Compression.CompressionMode.Decompress))
+            using (BrotliStream bs = new BrotliStream(await html.ReadAsStreamAsync(),
+                       System.IO.Compression.CompressionMode.Decompress))
             {
                 using (MemoryStream ms = new())
                 {
                     bs.CopyTo(ms);
-                    ms.Seek(0, System.IO.SeekOrigin.Begin);
+                    ms.Seek(0, SeekOrigin.Begin);
                     using (StreamReader reader = new StreamReader(ms))
                     {
                         contents = reader.ReadToEnd();

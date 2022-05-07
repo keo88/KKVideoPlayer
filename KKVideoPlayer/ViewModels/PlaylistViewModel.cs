@@ -1,4 +1,6 @@
-﻿namespace KKVideoPlayer.ViewModels
+﻿using System.Diagnostics;
+
+namespace KKVideoPlayer.ViewModels
 {
     using System;
     using System.Collections.Generic;
@@ -27,8 +29,10 @@
         // Constants
         private const int MinimumSearchLength = 2;
 
-        private static string[] VideoExtensions = { "mp4", "mov", "wmv", "avi", "avchd", "flv", "f4v", "swf", "mkv", "webm" };
-        private static string[] SubtitleExtensions = { "srt", "smi" };
+        private static string[] VideoExtensions =
+            {"mp4", "mov", "wmv", "avi", "avchd", "flv", "f4v", "swf", "mkv", "webm"};
+
+        private static string[] SubtitleExtensions = {"srt", "smi"};
 
         // Private state management
         private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
@@ -62,7 +66,8 @@
             // Directory list initialization
             if (File.Exists(root.AppDataDirectory + "/directories.xaml"))
             {
-                DirectoryList = (ObservableCollection<string>)XamlServices.Load(root.AppDataDirectory + "/directories.xaml");
+                DirectoryList =
+                    (ObservableCollection<string>) XamlServices.Load(root.AppDataDirectory + "/directories.xaml");
             }
             else
             {
@@ -205,7 +210,8 @@
                         var currentSearch = FilterString ?? string.Empty;
 
                         if (currentSearch == futureSearch) return;
-                        if (futureSearch.Length < MinimumSearchLength && currentSearch.Length < MinimumSearchLength) return;
+                        if (futureSearch.Length < MinimumSearchLength &&
+                            currentSearch.Length < MinimumSearchLength) return;
 
                         EntriesView.Refresh();
                         FilterString = new string(m_PlaylistSearchString.ToCharArray());
@@ -302,12 +308,14 @@
         {
             if (Path.HasExtension(sourceBody))
             {
-                sourceBody = Path.Combine(Path.GetDirectoryName(sourceBody), Path.GetFileNameWithoutExtension(sourceBody));
+                sourceBody = Path.Combine(Path.GetDirectoryName(sourceBody),
+                    Path.GetFileNameWithoutExtension(sourceBody));
             }
 
             if (Path.HasExtension(targetBody))
             {
-                targetBody = Path.Combine(Path.GetDirectoryName(targetBody), Path.GetFileNameWithoutExtension(targetBody));
+                targetBody = Path.Combine(Path.GetDirectoryName(targetBody),
+                    Path.GetFileNameWithoutExtension(targetBody));
             }
 
             foreach (string extender in SubtitleExtensions)
@@ -342,7 +350,8 @@
             using (SQLiteConnection conn = new SQLiteConnection(strConn))
             {
                 conn.Open();
-                string sql = "SELECT dvdId,dvdTitle,actors,genres,filepath,thumb,count,stars,dbDate,fileDate,releaseDate,director,company,series,hashTag FROM Files left outer natural join Dvd";
+                string sql =
+                    "SELECT dvdId,dvdTitle,actors,genres,filepath,thumb,count,stars,dbDate,fileDate,releaseDate,director,company,series,hashTag FROM Files left outer natural join Dvd";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 SQLiteDataReader rdr = cmd.ExecuteReader();
 
@@ -358,7 +367,8 @@
 
                     if (File.Exists(full_path))
                     {
-                        f_date = File.GetLastWriteTime(Root.CurrentVideoDirectory + "\\" + filepath).ToString("yyyy-MM-dd HH:mm:ss");
+                        f_date = File.GetLastWriteTime(Root.CurrentVideoDirectory + "\\" + filepath)
+                            .ToString("yyyy-MM-dd HH:mm:ss");
                         f_size = new FileInfo(full_path).Length;
                     }
 
@@ -378,7 +388,7 @@
                         series: rdr["series"].ToString(),
                         comment: rdr["hashTag"].ToString(),
                         fileSize: f_size,
-                        thumb: rdr["thumb"] is DBNull ? emptyThumb : (byte[])rdr["thumb"]));
+                        thumb: rdr["thumb"] is DBNull ? emptyThumb : (byte[]) rdr["thumb"]));
                 }
 
                 conn.Close();
@@ -398,10 +408,10 @@
             List<string> actualFilepaths = new();
 
             string[] items = Directory.GetFiles(targetDirectory);
-            foreach(string item in items)
+            foreach (string item in items)
             {
                 bool isInDb = VideoExtensions.Any(x => item.ToLowerInvariant().EndsWith(x));
-                if(isInDb)
+                if (isInDb)
                 {
                     string[] splittedItem = item.Split('\\');
                     actualFilepaths.Add(splittedItem[splittedItem.Length - 1]);
@@ -421,8 +431,10 @@
                     dbFilepaths.Add(rdr["filepath"].ToString());
                 }
 
-                List<string> newFilepath = actualFilepaths.Where(item => dbFilepaths.All(f => !item.Equals(f, StringComparison.Ordinal))).ToList();
-                List<string> inexistantFilepath = dbFilepaths.Where(item => actualFilepaths.All(f => !item.Equals(f, StringComparison.Ordinal))).ToList();
+                List<string> newFilepath = actualFilepaths
+                    .Where(item => dbFilepaths.All(f => !item.Equals(f, StringComparison.Ordinal))).ToList();
+                List<string> inexistantFilepath = dbFilepaths
+                    .Where(item => actualFilepaths.All(f => !item.Equals(f, StringComparison.Ordinal))).ToList();
 
                 using (SQLiteTransaction tr = conn.BeginTransaction())
                 {
@@ -431,12 +443,14 @@
 
                     foreach (string item in newFilepath)
                     {
-                        sql = "INSERT INTO Files(filepath, stars, dbDate, fileDate) VALUES (@filepath, @stars, @dbDate, @fileDate)";
+                        sql =
+                            "INSERT INTO Files(filepath, stars, dbDate, fileDate) VALUES (@filepath, @stars, @dbDate, @fileDate)";
                         cmd.CommandText = sql;
                         cmd.Parameters.AddWithValue("@filepath", item);
                         cmd.Parameters.AddWithValue("@stars", 0.0);
                         cmd.Parameters.AddWithValue("@dbDate", DateTime.Now.ToString("yyyy-MM-dd"));
-                        cmd.Parameters.AddWithValue("@fileDate", File.GetLastWriteTime(targetDirectory + "\\" + item).ToString("yyyy-MM-dd HH:mm:ss"));
+                        cmd.Parameters.AddWithValue("@fileDate",
+                            File.GetLastWriteTime(targetDirectory + "\\" + item).ToString("yyyy-MM-dd HH:mm:ss"));
                         cmd.ExecuteNonQuery();
                     }
 
@@ -458,7 +472,8 @@
         {
             try
             {
-                using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
+                using (SQLiteConnection conn =
+                       new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
                 {
                     conn.Open();
                     string sql = string.Empty;
@@ -472,9 +487,11 @@
                         {
                             if (deleteFiles)
                             {
-                                if (Root.PlayingVideo != null && Root.PlayingVideo.Filepath.Equals(itemPath, StringComparison.Ordinal))
+                                if (Root.PlayingVideo != null &&
+                                    Root.PlayingVideo.Filepath.Equals(itemPath, StringComparison.Ordinal))
                                 {
-                                    _ = MessageBox.Show("Close the video and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    _ = MessageBox.Show("Close the video and try again.", "Error", MessageBoxButton.OK,
+                                        MessageBoxImage.Error);
                                     continue;
                                 }
 
@@ -499,6 +516,7 @@
                 MessageBox.Show("Something went wrong.\n" + se.Message);
             }
         }
+
         #endregion
 
         #region File Tags Management
@@ -510,11 +528,12 @@
         /// <param name="targetHighlights">list of highlights to migrate.</param>
         /// <param name="sourceFolderPath">source directory to be migrated.</param>
         /// <param name="targetFolderPath">target directory to be migrated.</param>
-        public async void MigrateFile(List<VideoEntry> targetVideos, List<List<HighlightEntry>> targetHighlights, string sourceFolderPath, string targetFolderPath)
+        public async void MigrateFile(List<VideoEntry> targetVideos, List<List<HighlightEntry>> targetHighlights,
+            string sourceFolderPath, string targetFolderPath)
         {
             foreach (VideoEntry v in targetVideos)
             {
-                if (Root.PlayingVideo != null && (bool)Root.PlayingVideo?.Filepath.Equals(v.Filepath))
+                if (Root.PlayingVideo != null && (bool) Root.PlayingVideo?.Filepath.Equals(v.Filepath))
                 {
                     continue;
                 }
@@ -524,7 +543,8 @@
                     string body = string.Join('.', splited);
 
                     // File.Move(Path.Combine(sourceFolderPath, v.Filepath), Path.Combine(targetFolderPath, v.Filepath));
-                    Task moveTask = MoveAsync(Path.Combine(sourceFolderPath, v.Filepath), Path.Combine(targetFolderPath, v.Filepath));
+                    Task moveTask = MoveAsync(Path.Combine(sourceFolderPath, v.Filepath),
+                        Path.Combine(targetFolderPath, v.Filepath));
                     MigrateSubtitle(Path.Combine(sourceFolderPath, body), Path.Combine(targetFolderPath, body));
                     await moveTask;
                 }
@@ -558,14 +578,16 @@
                         cmd.CommandText = sql;
                         cmd.ExecuteNonQuery();
 
-                        sql = "INSERT INTO Dvd VALUES (@dvdId, @dvdTitle, @actors, @genres, @releaseDate, @director, @company, @series, @metaSource)";
+                        sql =
+                            "INSERT INTO Dvd VALUES (@dvdId, @dvdTitle, @actors, @genres, @releaseDate, @director, @company, @series, @metaSource)";
                         cmd.CommandText = sql;
 
                         cmd.Parameters.AddWithValue("@dvdId", v.DvdId);
                         cmd.Parameters.AddWithValue("@dvdTitle", v.Title);
                         cmd.Parameters.AddWithValue("@actors", string.Join(", ", v.Actors));
                         cmd.Parameters.AddWithValue("@genres", string.Join(", ", v.Genres));
-                        cmd.Parameters.AddWithValue("@releaseDate", v.ReleaseDate != DateTime.MinValue ? v.ReleaseDate.ToString("yyyy-MM-dd") : null);
+                        cmd.Parameters.AddWithValue("@releaseDate",
+                            v.ReleaseDate != DateTime.MinValue ? v.ReleaseDate.ToString("yyyy-MM-dd") : null);
                         cmd.Parameters.AddWithValue("@director", string.Join(",", v.Directors));
                         cmd.Parameters.AddWithValue("@company", string.Join(",", v.Companies));
                         cmd.Parameters.AddWithValue("@series", v.Series);
@@ -578,7 +600,8 @@
 
                         foreach (HighlightEntry he in highList)
                         {
-                            sql = "INSERT INTO Favorites(filepath, start, length, thumb) VALUES (@filepath, @start, @length, @thumb)";
+                            sql =
+                                "INSERT INTO Favorites(filepath, start, length, thumb) VALUES (@filepath, @start, @length, @thumb)";
                             cmd.CommandText = sql;
 
                             cmd.Parameters.AddWithValue("@filepath", v.Filepath);
@@ -620,6 +643,44 @@
             m.RenderingVideo += OnRenderingVideo;
 
             VideoCtrlWindow = new VideoControlWindow();
+        }
+
+        /// <summary>
+        /// Add new directory to directory list.
+        /// </summary>
+        /// <param name="directoryPath">string path to directory.</param>
+        public void AddDirectory(string directoryPath)
+        {
+            DirectoryList.Add(directoryPath);
+            XamlServices.Save(Root.AppDataDirectory + "/directories.xaml", DirectoryList);
+        }
+
+        public void RemoveDirectory(string directoryPath)
+        {
+            try
+            {
+                int targetIndex = DirectoryList.IndexOf(directoryPath);
+
+                DirectoryList.RemoveAt(targetIndex);
+                XamlServices.Save(Root.AppDataDirectory + "/directories.xaml", DirectoryList);
+            }
+            catch
+            {
+                Debug.WriteLine("Failed to delete folder");
+            }
+        }
+
+        public bool ValidateDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                RemoveDirectory(directoryPath);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private static async Task MoveAsync(string sourceFilePath, string destFilePath)
@@ -671,7 +732,9 @@
                         {
                             sql = "UPDATE Files SET fileDate=@fileDate WHERE filepath=@filePath";
                             cmd.CommandText = sql;
-                            cmd.Parameters.AddWithValue("@fileDate", File.GetLastWriteTime(targetDirectory + "\\" + v.Filepath).ToString("yyyy-MM-dd HH:mm:ss"));
+                            cmd.Parameters.AddWithValue("@fileDate",
+                                File.GetLastWriteTime(targetDirectory + "\\" + v.Filepath)
+                                    .ToString("yyyy-MM-dd HH:mm:ss"));
                             cmd.Parameters.AddWithValue("@filePath", v.Filepath);
                             cmd.ExecuteNonQuery();
                         }

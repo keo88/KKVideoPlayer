@@ -202,9 +202,9 @@
 
             // DvdId가 P.Key인데 dvdid가 빈칸이고 다른 곳은 차있으면 DB에 insert가 안되므로 return.
             if (string.IsNullOrWhiteSpace(DvdIdText) && (
-                !string.IsNullOrWhiteSpace(ActorsText) ||
-                !string.IsNullOrWhiteSpace(GenresText) ||
-                !string.IsNullOrWhiteSpace(TitleText)))
+                    !string.IsNullOrWhiteSpace(ActorsText) ||
+                    !string.IsNullOrWhiteSpace(GenresText) ||
+                    !string.IsNullOrWhiteSpace(TitleText)))
             {
                 MessageBox.Show("Cannot edit descriptions while the dvdid is empty.");
                 return;
@@ -228,7 +228,8 @@
                 selectedVideo.ReleaseDate = DateTime.MinValue;
             }
 
-            using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
+            using (SQLiteConnection conn =
+                   new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
             {
                 conn.Open();
                 string sql;
@@ -249,7 +250,8 @@
                         cmd.CommandText = sql;
                         cmd.ExecuteNonQuery();
 
-                        sql = $"UPDATE Favorites SET filepath = '{selectedVideo.Filepath}' WHERE filepath = '{sourcePath}'";
+                        sql =
+                            $"UPDATE Favorites SET filepath = '{selectedVideo.Filepath}' WHERE filepath = '{sourcePath}'";
                         cmd.CommandText = sql;
                         cmd.ExecuteNonQuery();
 
@@ -270,7 +272,8 @@
                             }
                             catch (IOException ex)
                             {
-                                _ = MessageBox.Show($"Unable to rename file.\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                _ = MessageBox.Show($"Unable to rename file.\n{ex.Message}", "Error",
+                                    MessageBoxButton.OK, MessageBoxImage.Error);
                                 tr.Rollback();
                                 conn.Close();
                                 return;
@@ -291,14 +294,18 @@
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
 
-                    sql = "INSERT INTO Dvd(dvdId, dvdTitle, actors, genres, releaseDate, director, company, series, metaSource) VALUES (@dvdId, @dvdTitle, @actors, @genres, @releaseDate, @director, @company, @series, @metaSource)";
+                    sql =
+                        "INSERT INTO Dvd(dvdId, dvdTitle, actors, genres, releaseDate, director, company, series, metaSource) VALUES (@dvdId, @dvdTitle, @actors, @genres, @releaseDate, @director, @company, @series, @metaSource)";
                     cmd.CommandText = sql;
 
                     cmd.Parameters.AddWithValue("@dvdId", selectedVideo.DvdId);
                     cmd.Parameters.AddWithValue("@dvdTitle", selectedVideo.Title);
                     cmd.Parameters.AddWithValue("@actors", string.Join(", ", selectedVideo.Actors));
                     cmd.Parameters.AddWithValue("@genres", string.Join(", ", selectedVideo.Genres));
-                    cmd.Parameters.AddWithValue("@releaseDate", selectedVideo.ReleaseDate != DateTime.MinValue ? selectedVideo.ReleaseDate.ToString("yyyy-MM-dd") : null);
+                    cmd.Parameters.AddWithValue("@releaseDate",
+                        selectedVideo.ReleaseDate != DateTime.MinValue
+                            ? selectedVideo.ReleaseDate.ToString("yyyy-MM-dd")
+                            : null);
                     cmd.Parameters.AddWithValue("@director", string.Join(", ", selectedVideo.Directors));
                     cmd.Parameters.AddWithValue("@company", string.Join(", ", selectedVideo.Companies));
                     cmd.Parameters.AddWithValue("@series", selectedVideo.Series);
@@ -325,10 +332,12 @@
 
             try
             {
-                string extender = fpSplitByDot[fpSplitByDot.Length - 1];
+                string extender = fpSplitByDot[^1];
 
                 string[] fpSplitComa = string.Join('.', fpSplitByDot.SkipLast(1)).Split(',');
-                string[] fpSplitSharp = fpSplitComa.Length > 1 ? string.Join(',', fpSplitComa.SkipLast(1)).Split('#') : fpSplitComa[0].Split('#');
+                string[] fpSplitSharp = fpSplitComa.Length > 1
+                    ? string.Join(',', fpSplitComa.SkipLast(1)).Split('#')
+                    : fpSplitComa[0].Split('#');
                 string fpHeader, fpBody;
 
                 if (fpSplitSharp.Length > 1)
@@ -342,21 +351,25 @@
                     fpBody = string.Empty;
                 }
 
-                string fpFooter = fpSplitComa[fpSplitComa.Length - 1].Trim();
+                string fpFooter = fpSplitComa[^1].Trim();
                 string[] fpFooterSplit = fpFooter.Split(' ');
 
-                string dvdid = fpFooterSplit[fpFooterSplit.Length - 1];
+                string dvdid = fpFooterSplit[^1];
                 if (dvdid.Contains('['))
                     dvdid = string.Empty;
 
                 List<string> genres = new List<string>();
                 List<string> actors = new List<string>();
 
-                string[] titleSplit = fpHeader.Split(new char[] { ')', ']' });
-                string title = titleSplit[titleSplit.Length - 1];
+                string[] titleSplit = fpHeader.Split(new char[] {')', ']'});
+                string title = titleSplit[^1];
 
                 if (fpSplitComa.Length == 1)
-                    dvdid = title;
+                {
+                    dvdid = AssumeVideoCode(fp);
+                    if (string.IsNullOrWhiteSpace(dvdid))
+                        dvdid = title;
+                }
 
                 string[] frontTags = BracketSplit(fpHeader, '[', ']');
                 foreach (string item in frontTags)
@@ -364,7 +377,7 @@
 
                 if (!string.IsNullOrWhiteSpace(fpBody))
                 {
-                    string[] bodyTags = fpBody.Split(new char[] { ' ', '#' });
+                    string[] bodyTags = fpBody.Split(new char[] {' ', '#'});
                     foreach (string item in bodyTags)
                         genres.Add(item.ToUpper());
                 }
@@ -393,7 +406,8 @@
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to process {fp}\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to process {fp}\n" + ex.Message, "Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -417,7 +431,7 @@
                 actors = "(" + ActorsText + ")";
             }
 
-            string[] resolutionTypes = { "SD", "HD", "FHD", "QHD", "UHD" };
+            string[] resolutionTypes = {"SD", "HD", "FHD", "QHD", "UHD"};
 
             List<string> resolutions = genresList.Where(item => resolutionTypes.Contains(item)).ToList();
             string resolution = string.Empty;
@@ -452,21 +466,14 @@
         /// </summary>
         public async void CrawlVideoInfoAsync()
         {
-            string dvdid = DvdIdText;
+            string assumedVideoCode = AssumeVideoCode(PathText);
 
-            if (string.IsNullOrWhiteSpace(dvdid))
-            {
-                string input = PathText;
-                foreach (Match match in Regex.Matches(input, @"\w{3,}-\d{3,}"))
-                {
-                    dvdid = match.ToString();
-                    DvdIdText = dvdid;
-                }
-            }
+            if (!string.IsNullOrWhiteSpace(assumedVideoCode))
+                DvdIdText = assumedVideoCode;
 
             VideoEntry v = new();
 
-            Task<bool> navigateTask = App.ViewModel.Crawler.NavigateJavDb(dvdid, v);
+            Task<bool> navigateTask = App.ViewModel.Crawler.NavigateJavDb(DvdIdText, v);
             bool ret = await navigateTask;
 
             if (ret)
@@ -511,7 +518,9 @@
             }
             else
             {
-                _ = MessageBox.Show("Something went wrong.\nCannot connect to requested url.\nCheck your DNS/SNI Settings.\nIt may also mean your search id is not present in the Web DB.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show(
+                    "Something went wrong.\nCannot connect to requested url.\nCheck your DNS/SNI Settings.\nIt may also mean your search id is not present in the Web DB.",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -546,6 +555,18 @@
             list.Reverse();
 
             return list;
+        }
+
+        private string AssumeVideoCode(string raw)
+        {
+            string dvdId = String.Empty;
+            foreach (Match match in Regex.Matches(raw, @"\w{3,}-\d{3,}"))
+            {
+                dvdId = match.ToString();
+                DvdIdText = dvdId;
+            }
+            
+            return dvdId;
         }
     }
 }

@@ -99,6 +99,8 @@
             if (App.ViewModel.MediaElement.IsOpen)
                 await App.ViewModel.Commands.CloseCommand.ExecuteAsync(ViewModel.MediaElement);
 
+            ViewModel.Playlist.ValidateDirectory(ViewModel.Playlist.SelectedDirectory);
+
             ViewModel.CurrentVideoDirectory = ViewModel.Playlist.SelectedDirectory;
             bool dbExists = SqlManager.CheckOrCreateDb(ViewModel.CurrentVideoDirectory);
 
@@ -124,8 +126,8 @@
 
             if (result == true)
             {
-                ViewModel.Playlist.DirectoryList.Add(addDirWin.DirectoryTextBox.Text);
-                XamlServices.Save(ViewModel.AppDataDirectory + "/directories.xaml", ViewModel.Playlist.DirectoryList);
+                string directoryName = addDirWin.DirectoryTextBox.Text;
+                ViewModel.Playlist.AddDirectory(directoryName);
             }
         }
 
@@ -146,17 +148,7 @@
 
         private void DelDirButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                int targetIndex = ViewModel.Playlist.DirectoryList.IndexOf(ViewModel.Playlist.SelectedDirectory);
-
-                ViewModel.Playlist.DirectoryList.RemoveAt(targetIndex);
-                XamlServices.Save(ViewModel.AppDataDirectory + "/directories.xaml", ViewModel.Playlist.DirectoryList);
-            }
-            catch
-            {
-                Debug.WriteLine("Failed to delete folder");
-            }
+            ViewModel.Playlist.RemoveDirectory(ViewModel.Playlist.SelectedDirectory);
         }
 
         private async void FileList_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)

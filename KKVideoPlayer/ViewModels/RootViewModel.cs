@@ -423,7 +423,7 @@
                 using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + CurrentVideoDirectory + "/deepdark.db"))
                 {
                     conn.Open();
-                    string sql = $"UPDATE File Set count = '{PlayingVideo.ViewCount}'";
+                    string sql = $"UPDATE File Set count = '{PlayingVideo.ViewCount}' WHERE filepath = '{PlayingVideo.Filepath}'";
                     SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                     conn.Close();
                 }
