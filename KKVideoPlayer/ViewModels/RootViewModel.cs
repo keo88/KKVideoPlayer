@@ -384,6 +384,27 @@
         }
 
         /// <summary>
+        /// Export currently playing video resolution.
+        /// </summary>
+        /// <param name="width">Output video width.</param>
+        /// <param name="height">Output video height.</param>
+        public bool TryGetVideoResolution(out int width, out int height)
+        {
+            if (MediaElement.IsOpen)
+            {
+                width = MediaElement.NaturalVideoWidth;
+                height = MediaElement.NaturalVideoHeight;
+                return true;
+            }
+            else
+            {
+                width = 0;
+                height = 0;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Called when application has finished loading.
         /// </summary>
         internal void OnApplicationLoaded()

@@ -8,18 +8,14 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Data;
-    using System.Xaml;
-    using Unosquare.FFME.Common;
-    using Controls;
-    using Foundation;
+    using KKVideoPlayer.Foundation;
 
     /// <summary>
     ///  Represents video editing control.
     /// </summary>
     public sealed class VideoControlViewModel : AttachedViewModel
     {
+        private static readonly string[] ResolutionTypes = { "SD", "HD", "FHD", "QHD", "UHD" };
         private string m_PathText;
         private string m_DvdIdText;
         private string m_TitleText;
@@ -396,6 +392,14 @@
                 actors = actors.Distinct().ToList();
                 genres = genres.Distinct().ToList();
 
+                // If there is no resolution typed genre in the genres list, try make one.
+                if (!genres.Any((item) => ResolutionTypes.Contains(item)))
+                {
+                    bool gotResolution = TryGetVideoResolution(out string resolution);
+                    if (gotResolution)
+                        genres.Add(resolution);
+                }
+
                 string actressesStr = string.Join(", ", actors);
                 string tagsStr = string.Join(", ", genres);
 
@@ -431,9 +435,7 @@
                 actors = "(" + ActorsText + ")";
             }
 
-            string[] resolutionTypes = {"SD", "HD", "FHD", "QHD", "UHD"};
-
-            List<string> resolutions = genresList.Where(item => resolutionTypes.Contains(item)).ToList();
+            List<string> resolutions = genresList.Where(item => ResolutionTypes.Contains(item)).ToList();
             string resolution = string.Empty;
 
             if (resolutions.Count > 0)
@@ -441,6 +443,16 @@
                 resolution = resolutions[0];
                 genresList.Remove(resolution);
                 resolution = " [" + resolution + "]";
+            }
+            else
+            {
+                if (Root.PlayingVideo == EditedVideo)
+                {
+                    bool gotResolution = TryGetVideoResolution(out resolution);
+
+                    if (gotResolution)
+                        resolution = " [" + resolution + "]";
+                }
             }
 
             string firstGenre = string.Empty;
@@ -459,6 +471,38 @@
 
             filePath = $"{firstGenre}{actors}{title}{genres},{resolution} {dvdId}.{extender}";
             PathText = filePath;
+        }
+
+        private bool TryGetVideoResolution(out string resolution)
+        {
+            resolution = string.Empty;
+            bool gotValues = Root.TryGetVideoResolution(out int width, out int height);
+
+            if (!gotValues)
+                return false;
+
+            if (width > 0 && width < 1280)
+            {
+                resolution = ResolutionTypes[0];
+            }
+            else if (width >= 1280 && width < 1980)
+            {
+                resolution = ResolutionTypes[1];
+            }
+            else if (width >= 1980 && width < 2560)
+            {
+                resolution = ResolutionTypes[2];
+            }
+            else if (width >= 2560 && width < 3840)
+            {
+                resolution = ResolutionTypes[3];
+            }
+            else if (width >= 3840)
+            {
+                resolution = ResolutionTypes[4];
+            }
+
+            return !string.IsNullOrWhiteSpace(resolution);
         }
 
         /// <summary>
