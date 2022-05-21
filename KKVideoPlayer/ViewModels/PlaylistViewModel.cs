@@ -351,7 +351,7 @@ namespace KKVideoPlayer.ViewModels
             {
                 conn.Open();
                 string sql =
-                    "SELECT dvdId,dvdTitle,actors,genres,filepath,thumb,count,stars,dbDate,fileDate,releaseDate,director,company,series,hashTag FROM Files left outer natural join Dvd";
+                    "SELECT * FROM Files left outer natural join Dvd";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 SQLiteDataReader rdr = cmd.ExecuteReader();
 
@@ -498,7 +498,7 @@ namespace KKVideoPlayer.ViewModels
                                 File.Delete(Path.Combine(Root.CurrentVideoDirectory, itemPath));
                             }
 
-                            sql = $"DELETE FROM Files WHERE filepath = \"{itemPath}\"";
+                            sql = $"DELETE FROM Files WHERE filepath = '{itemPath}'";
                             cmd.CommandText = sql;
                             cmd.ExecuteNonQuery();
                         }
