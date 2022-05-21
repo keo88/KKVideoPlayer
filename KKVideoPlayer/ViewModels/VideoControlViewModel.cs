@@ -473,51 +473,22 @@
             PathText = filePath;
         }
 
-        private bool TryGetVideoResolution(out string resolution)
-        {
-            resolution = string.Empty;
-            bool gotValues = Root.TryGetVideoResolution(out int width, out int height);
-
-            if (!gotValues)
-                return false;
-
-            if (width > 0 && width < 1280)
-            {
-                resolution = ResolutionTypes[0];
-            }
-            else if (width >= 1280 && width < 1980)
-            {
-                resolution = ResolutionTypes[1];
-            }
-            else if (width >= 1980 && width < 2560)
-            {
-                resolution = ResolutionTypes[2];
-            }
-            else if (width >= 2560 && width < 3840)
-            {
-                resolution = ResolutionTypes[3];
-            }
-            else if (width >= 3840)
-            {
-                resolution = ResolutionTypes[4];
-            }
-
-            return !string.IsNullOrWhiteSpace(resolution);
-        }
-
         /// <summary>
         ///  Crawling from the web to get video info.
         /// </summary>
         public async void CrawlVideoInfoAsync()
         {
-            string assumedVideoCode = AssumeVideoCode(PathText);
+            if (string.IsNullOrWhiteSpace(DvdIdText))
+            {
+                string assumedVideoCode = AssumeVideoCode(PathText);
 
-            if (!string.IsNullOrWhiteSpace(assumedVideoCode))
-                DvdIdText = assumedVideoCode;
+                if (!string.IsNullOrWhiteSpace(assumedVideoCode))
+                    DvdIdText = assumedVideoCode;
+            }
 
             VideoEntry v = new();
 
-            Task<bool> navigateTask = App.ViewModel.Crawler.NavigateJavDb(DvdIdText, v);
+            Task<bool> navigateTask = Root.Crawler.NavigateJavDb(DvdIdText, v);
             bool ret = await navigateTask;
 
             if (ret)
@@ -568,6 +539,59 @@
             }
         }
 
+        /// <summary>
+        /// Simple web browser open to search dvd id.
+        /// </summary>
+        /// <param name="url">Target url. query url must contain SEARCH_TERM in order to execute appropriate dvd id search query.</param>
+        public void OpenDvdIdWeb(string url)
+        {
+            if (string.IsNullOrWhiteSpace(DvdIdText))
+            {
+                string assumedVideoCode = AssumeVideoCode(PathText);
+
+                if (!string.IsNullOrWhiteSpace(assumedVideoCode))
+                    DvdIdText = assumedVideoCode;
+            }
+
+            if (!url.Contains("SEARCH_TERM"))
+                throw new ArgumentException("Target url is invalid. Must contain SEARCH_TERM.");
+
+            string completeUrl = url.Replace("SEARCH_TERM", DvdIdText);
+            WebCrawlDriver.OpenWebBrowser(completeUrl);
+        }
+
+        private bool TryGetVideoResolution(out string resolution)
+        {
+            resolution = string.Empty;
+            bool gotValues = Root.TryGetVideoResolution(out int width, out int height);
+
+            if (!gotValues)
+                return false;
+
+            if (width > 0 && width < 1280)
+            {
+                resolution = ResolutionTypes[0];
+            }
+            else if (width >= 1280 && width < 1980)
+            {
+                resolution = ResolutionTypes[1];
+            }
+            else if (width >= 1980 && width < 2560)
+            {
+                resolution = ResolutionTypes[2];
+            }
+            else if (width >= 2560 && width < 3840)
+            {
+                resolution = ResolutionTypes[3];
+            }
+            else if (width >= 3840)
+            {
+                resolution = ResolutionTypes[4];
+            }
+
+            return !string.IsNullOrWhiteSpace(resolution);
+        }
+
         private static string[] BracketSplit(string str, char sep1, char sep2)
         {
             List<string> output = new List<string>();
@@ -603,13 +627,13 @@
 
         private string AssumeVideoCode(string raw)
         {
-            string dvdId = String.Empty;
+            string dvdId = string.Empty;
             foreach (Match match in Regex.Matches(raw, @"\w{3,}-\d{3,}"))
             {
                 dvdId = match.ToString();
                 DvdIdText = dvdId;
             }
-            
+
             return dvdId;
         }
     }

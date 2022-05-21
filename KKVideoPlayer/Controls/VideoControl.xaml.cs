@@ -56,6 +56,16 @@
         {
             App.ViewModel.VideoCtrl.CrawlVideoInfoAsync();
         }
+        
+        private void AButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.ViewModel.VideoCtrl.OpenDvdIdWeb("https://www.avdbs.com/menu/search.php?kwd=SEARCH_TERM");
+        }
+        
+        private void RButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.ViewModel.VideoCtrl.OpenDvdIdWeb("https://www.r18.com/common/search/searchword=SEARCH_TERM/");
+        }
 
         private async void CompleteDeleteButton_Click(object sender, RoutedEventArgs e)
         {

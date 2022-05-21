@@ -177,6 +177,7 @@
         private void FileList_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             ViewModel.Playlist.VideoCtrlWindow.Show();
+            ViewModel.Playlist.VideoCtrlWindow.Activate();
             ViewModel.VideoCtrl.ParentWindow = ViewModel.Playlist.VideoCtrlWindow;
 
             // PlaylistRightClickPopup.IsOpen = true;

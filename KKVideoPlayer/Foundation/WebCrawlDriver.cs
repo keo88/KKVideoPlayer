@@ -18,7 +18,7 @@
     /// <summary>
     ///  Crawl information of the video from the web.
     /// </summary>
-    public class WebCrawlDriver : IDisposable
+    public sealed class WebCrawlDriver : IDisposable
     {
         private const string JAVLIBURL = "https://www.javlibrary.com/en/";
         private const string JAVDBURL = "https://javdb.com/";
@@ -70,6 +70,19 @@
             client.DefaultRequestHeaders.Add("sec-fetch-dest", "document");
             client.DefaultRequestHeaders.Add("accept-encoding", "gzip,deflate,br");
             client.DefaultRequestHeaders.Add("accept-language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6");
+        }
+
+        /// <summary>
+        /// Open default web browser with given url.
+        /// </summary>
+        /// <param name="url">target url.</param>
+        public static void OpenWebBrowser(string url)
+        {
+            var sInfo = new ProcessStartInfo(url)
+            {
+                UseShellExecute = true,
+            };
+            Process.Start(sInfo);
         }
 
         /// <summary>
@@ -229,7 +242,7 @@
         ///  Dispose the entity.
         /// </summary>
         /// <param name="disposing">.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {

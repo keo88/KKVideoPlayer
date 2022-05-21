@@ -91,8 +91,13 @@
             </StackPanel>
             <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Grid.Column="1" Grid.ColumnSpan="2" Width="140" 
                     Content="Completely Delete" HorizontalAlignment="Left" Click="CompleteDeleteButton_Click" Foreground="DarkRed" />
-
-            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Width="200" Content="Get data from web..(WIP)" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="WebCrawlButton_Click"/>
+            <StackPanel Orientation="Horizontal" Grid.Row ="1" Margin="10, 0, 0, 0">
+                <Button Style="{StaticResource ModernTextButtonStyle}" Width="200" Content="Get data from web..(WIP)" HorizontalAlignment="Left" Click="WebCrawlButton_Click"/>
+                <Border Width="10"></Border>
+                <Button Style="{StaticResource ModernTextButtonStyle}" Width="50" Content="A" HorizontalAlignment="Left" Click="AButton_Click"/>
+                <Border Width="10"></Border>
+                <Button Style="{StaticResource ModernTextButtonStyle}" Width="50" Content="R" HorizontalAlignment="Left" Click="RButton_Click"/>
+            </StackPanel>
             <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Grid.Column="1" Content="Cancel" Click="CancelButton_Click"/>
             <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="1" Grid.Column="2" Content="Accept" Click="AcceptButton_Click" />
         </Grid>
