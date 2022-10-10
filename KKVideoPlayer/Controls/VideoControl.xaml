@@ -89,8 +89,13 @@
                 <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Width="100" Content="Deformat" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="DeformatButton_Click"/>
                 <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Width="100" Content="Format" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Click="FormatButton_Click"/>
             </StackPanel>
-            <Button Style="{StaticResource ModernTextButtonStyle}" Grid.Row ="0" Grid.Column="1" Grid.ColumnSpan="2" Width="140" 
-                    Content="Completely Delete" HorizontalAlignment="Left" Click="CompleteDeleteButton_Click" Foreground="DarkRed" />
+            <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="-100,0, 0,0">
+                <Button Style="{StaticResource ModernTextButtonStyle}" Width="140" 
+                        Content="Show In Explorer" HorizontalAlignment="Left" Click="ShowInExplorerButton_Click" />
+                <Border Width="10"></Border>
+                <Button Style="{StaticResource ModernTextButtonStyle}" Width="140" 
+                        Content="Completely Delete" HorizontalAlignment="Left" Click="CompleteDeleteButton_Click" Foreground="DarkRed" />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row ="1" Margin="10, 0, 0, 0">
                 <Button Style="{StaticResource ModernTextButtonStyle}" Width="200" Content="Get data from web..(WIP)" HorizontalAlignment="Left" Click="WebCrawlButton_Click"/>
                 <Border Width="10"></Border>

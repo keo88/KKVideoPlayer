@@ -489,29 +489,6 @@
                 title = "(No media loaded)";
             }
 
-            /*
-            if (m?.IsOpen ?? false)
-            {
-                foreach (var kvp in m.Metadata)
-                {
-                    if (!kvp.Key.Equals("title", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    title = kvp.Value;
-                    break;
-                }
-            }
-            else if (m?.IsOpening ?? false)
-            {
-                state = "Opening . . .";
-            }
-            else
-            {
-                title = "(No media loaded)";
-                state = "Ready";
-            }
-            */
-
             // WindowTitle = $"KKPlayer v{AppVersion} {title} {state} " + $"FFmpeg {Library.FFmpegVersionInfo} ({(Debugger.IsAttached ? "Debug" : "Release")})";
             WindowTitle = $"KKPlayer v{AppVersion}";
         }

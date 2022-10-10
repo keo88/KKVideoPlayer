@@ -1,4 +1,6 @@
-﻿namespace KKVideoPlayer.ViewModels
+﻿using System.Diagnostics;
+
+namespace KKVideoPlayer.ViewModels
 {
     using System;
     using System.Collections.Generic;
@@ -558,6 +560,30 @@
 
             string completeUrl = url.Replace("SEARCH_TERM", DvdIdText);
             WebCrawlDriver.OpenWebBrowser(completeUrl);
+        }
+
+        /// <summary>
+        /// Display and select item in explorer.
+        /// </summary>
+        /// <param name="path">Path to the selected item.</param>
+        public void ShowItemInExplorer(string path = null)
+        {
+            string pathCmd = path ?? Path.Combine(Root.CurrentVideoDirectory, PathText);
+
+            if (!File.Exists(pathCmd))
+            {
+                MessageBox.Show($"File not found\n{pathCmd}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string cmdText = $"/n,/select,\"{pathCmd}\"";
+
+            var showProcInfo = new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = cmdText,
+            };
+            Process.Start(showProcInfo);
         }
 
         private bool TryGetVideoResolution(out string resolution)
