@@ -179,6 +179,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Search"  Padding="4,0,0,0" FontStyle="Italic"
                                    VerticalAlignment="Center" IsHitTestVisible="False">
@@ -195,7 +196,10 @@
                         </TextBlock>
                         <TextBox x:Name="SearchTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="#484848" FontSize="14" Padding="2"  FontWeight="Bold"
                                  Text="{Binding Playlist.PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
-                        <Viewbox HorizontalAlignment="Right" Grid.Column="1">
+                        <Button Grid.Column="1" Click="ClearSearchTextButton_OnClick" Style="{DynamicResource ModernButtonStyle}" Width="20" Height="20" Padding="2, 2" >
+                            <Path Stretch="Uniform" Data="{Binding Source={StaticResource ClearIcon}, Path=Data}" Fill="#666" />
+                        </Button>
+                        <Viewbox HorizontalAlignment="Right" Grid.Column="2">
                             <Path Stretch="Uniform" Data="{Binding Source={StaticResource SearchIcon}, Path=Data}" Fill="#666" />
                         </Viewbox>
                     </Grid>

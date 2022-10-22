@@ -353,9 +353,9 @@
                 string fpFooter = fpSplitComa[^1].Trim();
                 string[] fpFooterSplit = fpFooter.Split(' ');
 
-                string dvdId = fpFooterSplit.Length > 2
+                string dvdId = fpFooterSplit.Length > 1
                     ? string.Join(' ', fpFooterSplit.SkipWhile(x => x.Contains('['))).Trim()
-                    : fpFooterSplit[^1].Trim();
+                    : fpFooterSplit[0].Trim();
                 if (dvdId.Contains('['))
                     dvdId = string.Empty;
 

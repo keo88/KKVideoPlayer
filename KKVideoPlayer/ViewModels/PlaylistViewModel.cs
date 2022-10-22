@@ -683,6 +683,14 @@ namespace KKVideoPlayer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Clear search string.
+        /// </summary>
+        public void ClearSearchString()
+        {
+            PlaylistSearchString = string.Empty;
+        }
+
         private static async Task MoveAsync(string sourceFilePath, string destFilePath)
         {
             if (!File.Exists(sourceFilePath) || File.Exists(destFilePath))

@@ -403,7 +403,7 @@
 
         private void SelectAllVideoCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)SelectAllVideoCheckBox?.IsChecked)
+            if (SelectAllVideoCheckBox?.IsChecked != null && (bool)SelectAllVideoCheckBox?.IsChecked)
             {
                 FileList.SelectAll();
             }
@@ -411,6 +411,11 @@
             {
                 FileList.UnselectAll();
             }
+        }
+
+        private void ClearSearchTextButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Playlist.ClearSearchString();
         }
     }
 }
