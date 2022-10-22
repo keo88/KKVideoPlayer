@@ -598,11 +598,11 @@ namespace KKVideoPlayer.ViewModels
             {
                 resolution = ResolutionTypes[0];
             }
-            else if (width >= 1280 && width < 1980)
+            else if (width >= 1280 && width < 1920)
             {
                 resolution = ResolutionTypes[1];
             }
-            else if (width >= 1980 && width < 2560)
+            else if (width >= 1920 && width < 2560)
             {
                 resolution = ResolutionTypes[2];
             }
