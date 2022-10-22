@@ -1,16 +1,16 @@
-﻿using System.Diagnostics;
-
-namespace KKVideoPlayer.ViewModels
+﻿namespace KKVideoPlayer.ViewModels
 {
     using System;
     using System.Collections.Generic;
     using System.Data.SQLite;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows;
     using KKVideoPlayer.Foundation;
+    using static System.Windows.MessageBoxImage;
 
     /// <summary>
     ///  Represents video editing control.
@@ -170,11 +170,13 @@ namespace KKVideoPlayer.ViewModels
             else
                 ReleaseDateText = selectedVideo.ReleaseDate.ToString("yyyy-MM-dd");
 
-            MaintainedVideoInfo = new();
-            MaintainedVideoInfo.Add(oldDvdId);
-            MaintainedVideoInfo.Add(sourcePath);
-            MaintainedVideoInfo.Add(sourceFullPath);
-            MaintainedVideoInfo.Add(videoIsOpen.ToString());
+            MaintainedVideoInfo = new List<string>
+            {
+                oldDvdId,
+                sourcePath,
+                sourceFullPath,
+                videoIsOpen.ToString(),
+            };
         }
 
         /// <summary>
@@ -226,7 +228,7 @@ namespace KKVideoPlayer.ViewModels
                 selectedVideo.ReleaseDate = DateTime.MinValue;
             }
 
-            using (SQLiteConnection conn =
+            using (var conn =
                    new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
             {
                 conn.Open();
@@ -271,7 +273,7 @@ namespace KKVideoPlayer.ViewModels
                             catch (IOException ex)
                             {
                                 _ = MessageBox.Show($"Unable to rename file.\n{ex.Message}", "Error",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                                    MessageBoxButton.OK, Error);
                                 tr.Rollback();
                                 conn.Close();
                                 return;
@@ -300,10 +302,9 @@ namespace KKVideoPlayer.ViewModels
                     cmd.Parameters.AddWithValue("@dvdTitle", selectedVideo.Title);
                     cmd.Parameters.AddWithValue("@actors", string.Join(", ", selectedVideo.Actors));
                     cmd.Parameters.AddWithValue("@genres", string.Join(", ", selectedVideo.Genres));
-                    cmd.Parameters.AddWithValue("@releaseDate",
-                        selectedVideo.ReleaseDate != DateTime.MinValue
-                            ? selectedVideo.ReleaseDate.ToString("yyyy-MM-dd")
-                            : null);
+                    cmd.Parameters.AddWithValue(
+                        "@releaseDate",
+                        selectedVideo.ReleaseDate != DateTime.MinValue ? selectedVideo.ReleaseDate.ToString("yyyy-MM-dd") : null);
                     cmd.Parameters.AddWithValue("@director", string.Join(", ", selectedVideo.Directors));
                     cmd.Parameters.AddWithValue("@company", string.Join(", ", selectedVideo.Companies));
                     cmd.Parameters.AddWithValue("@series", selectedVideo.Series);
@@ -352,43 +353,45 @@ namespace KKVideoPlayer.ViewModels
                 string fpFooter = fpSplitComa[^1].Trim();
                 string[] fpFooterSplit = fpFooter.Split(' ');
 
-                string dvdid = fpFooterSplit[^1];
-                if (dvdid.Contains('['))
-                    dvdid = string.Empty;
+                string dvdId = fpFooterSplit.Length > 2
+                    ? string.Join(' ', fpFooterSplit.SkipWhile(x => x.Contains('['))).Trim()
+                    : fpFooterSplit[^1].Trim();
+                if (dvdId.Contains('['))
+                    dvdId = string.Empty;
 
-                List<string> genres = new List<string>();
-                List<string> actors = new List<string>();
+                var actors = new List<string>();
 
-                string[] titleSplit = fpHeader.Split(new char[] {')', ']'});
-                string title = titleSplit[^1];
+                string[] titleSplit = fpHeader.Split(new char[] { ')', ']' });
+                string title = titleSplit[^1].Trim();
 
                 if (fpSplitComa.Length == 1)
                 {
-                    dvdid = AssumeVideoCode(fp);
-                    if (string.IsNullOrWhiteSpace(dvdid))
-                        dvdid = title;
+                    dvdId = AssumeVideoCode(fp);
+                    if (string.IsNullOrWhiteSpace(dvdId))
+                        dvdId = title;
+                }
+
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = dvdId;
                 }
 
                 string[] frontTags = BracketSplit(fpHeader, '[', ']');
-                foreach (string item in frontTags)
-                    genres.Add(item.ToUpper());
+                var genres = frontTags.Select(item => item.ToUpper().Trim()).ToList();
 
                 if (!string.IsNullOrWhiteSpace(fpBody))
                 {
-                    string[] bodyTags = fpBody.Split(new char[] {' ', '#'});
-                    foreach (string item in bodyTags)
-                        genres.Add(item.ToUpper());
+                    string[] bodyTags = fpBody.Split(new char[] { ' ', '#' });
+                    genres.AddRange(bodyTags.Select(item => item.ToUpper().Trim()));
                 }
 
                 string[] footerTags = BracketSplit(fpFooter, '[', ']');
-                foreach (string item in footerTags)
-                    genres.Add(item.ToUpper());
+                genres.AddRange(footerTags.Select(item => item.ToUpper().Trim()));
 
                 string[] actorsStr = BracketSplit(fpHeader, '(', ')');
                 if (actorsStr.Length > 0)
                 {
-                    foreach (string actor in actorsStr[0].Split(','))
-                        actors.Add(actor.Trim());
+                    actors.AddRange(actorsStr[0].Split(',').Select(actor => actor.Trim()));
                 }
 
                 actors = actors.Distinct().ToList();
@@ -405,15 +408,14 @@ namespace KKVideoPlayer.ViewModels
                 string actressesStr = string.Join(", ", actors);
                 string tagsStr = string.Join(", ", genres);
 
-                DvdIdText = dvdid;
+                DvdIdText = dvdId;
                 ActorsText = actressesStr;
                 GenresText = tagsStr;
                 TitleText = title;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to process {fp}\n" + ex.Message, "Error", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show($"Failed to process {fp}\n" + ex.Message, "Error", MessageBoxButton.OK, Error);
             }
         }
 
@@ -423,14 +425,25 @@ namespace KKVideoPlayer.ViewModels
         public void FormatFilepath()
         {
             string[] fpSplitByDot = PathText.Split('.');
-            string extender = fpSplitByDot[fpSplitByDot.Length - 1];
+            string extender = fpSplitByDot[^1];
 
-            string filePath = string.Empty;
-
-            List<string> genresList = GenresText.Split(", ").ToList();
+            var genresList = GenresText.Split(",")
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim()).ToList();
             string actors = string.Empty;
             string title = TitleText;
             string dvdId = DvdIdText;
+            bool isDuplicateTitle = false;
+
+            if (string.IsNullOrWhiteSpace(dvdId) && !string.IsNullOrWhiteSpace(title))
+            {
+                dvdId = title;
+                isDuplicateTitle = true;
+            }
+            else if (title != null && title.Equals(dvdId))
+            {
+                isDuplicateTitle = true;
+            }
 
             if (!string.IsNullOrWhiteSpace(ActorsText))
             {
@@ -471,7 +484,18 @@ namespace KKVideoPlayer.ViewModels
                 genres = " #" + string.Join(" ", genresList);
             }
 
-            filePath = $"{firstGenre}{actors}{title}{genres},{resolution} {dvdId}.{extender}";
+            string filePath;
+
+            // Remove duplicate title, if dvdId and the title is the same.
+            if (isDuplicateTitle)
+            {
+                filePath = $"{firstGenre}{actors}{genres},{resolution} {dvdId}.{extender}";
+            }
+            else
+            {
+                filePath = $"{firstGenre}{actors}{title}{genres},{resolution} {dvdId}.{extender}";
+            }
+
             PathText = filePath;
         }
 
@@ -488,7 +512,7 @@ namespace KKVideoPlayer.ViewModels
                     DvdIdText = assumedVideoCode;
             }
 
-            VideoEntry v = new();
+            VideoEntry v = new ();
 
             Task<bool> navigateTask = Root.Crawler.NavigateJavDb(DvdIdText, v);
             bool ret = await navigateTask;
@@ -537,7 +561,9 @@ namespace KKVideoPlayer.ViewModels
             {
                 _ = MessageBox.Show(
                     "Something went wrong.\nCannot connect to requested url.\nCheck your DNS/SNI Settings.\nIt may also mean your search id is not present in the Web DB.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    "Error",
+                    MessageBoxButton.OK,
+                    Error);
             }
         }
 
@@ -572,7 +598,7 @@ namespace KKVideoPlayer.ViewModels
 
             if (!File.Exists(pathCmd))
             {
-                MessageBox.Show($"File not found\n{pathCmd}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"File not found\n{pathCmd}", "Error", MessageBoxButton.OK, Error);
                 return;
             }
 
@@ -586,10 +612,32 @@ namespace KKVideoPlayer.ViewModels
             Process.Start(showProcInfo);
         }
 
+        private static string[] BracketSplit(string str, char sep1, char sep2)
+        {
+            List<string> output = new List<string>();
+
+            try
+            {
+                var splitStr = str.Split(sep1);
+                var strPrev = splitStr.Skip(1);
+
+                foreach (string piece in strPrev)
+                {
+                    output.Add(piece.Split(sep2)[0]);
+                }
+            }
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+
+            return output.ToArray();
+        }
+
         private bool TryGetVideoResolution(out string resolution)
         {
             resolution = string.Empty;
-            bool gotValues = Root.TryGetVideoResolution(out int width, out int height);
+            bool gotValues = Root.TryGetVideoResolution(out int width, out int _);
 
             if (!gotValues)
                 return false;
@@ -616,39 +664,6 @@ namespace KKVideoPlayer.ViewModels
             }
 
             return !string.IsNullOrWhiteSpace(resolution);
-        }
-
-        private static string[] BracketSplit(string str, char sep1, char sep2)
-        {
-            List<string> output = new List<string>();
-
-            try
-            {
-                var splitStr = str.Split(sep1);
-                var strPrev = splitStr.Skip(1);
-
-                foreach (string piece in strPrev)
-                {
-                    output.Add(piece.Split(sep2)[0]);
-                }
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
-
-            return output.ToArray();
-        }
-
-        private static List<string> RemoveDuplicates(List<string> list)
-        {
-            list.Reverse();
-            var duplicates = list.GroupBy(i => i).Where(g => g.Count() > 1).Select(g => g.Key);
-            foreach (var dup in duplicates)
-                list.Remove(dup);
-            list.Reverse();
-
-            return list;
         }
 
         private string AssumeVideoCode(string raw)
