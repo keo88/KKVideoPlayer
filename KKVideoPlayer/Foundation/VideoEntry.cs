@@ -88,8 +88,12 @@
             Filepath = filepath;
             ViewCount = int.Parse(viewCount);
             Rating = decimal.Parse(rating);
-            Genres = genresStr.Split(',').Select(p => p.Trim()).ToList();
-            Actors = actorsStr.Split(',').Select(p => p.Trim()).ToList();
+            Genres = string.IsNullOrWhiteSpace(genresStr)
+                ? new List<string>()
+                : genresStr.Split(',').Select(p => p.Trim()).ToList();
+            Actors = string.IsNullOrWhiteSpace(actorsStr)
+                ? new List<string>()
+                : actorsStr.Split(',').Select(p => p.Trim()).ToList();
             DbDate = string.IsNullOrEmpty(dbDate) ? DateTime.MinValue : DateTime.ParseExact(dbDate, "yyyy-MM-dd", null);
             FileDate = string.IsNullOrEmpty(fileDate) ? DateTime.MinValue : DateTime.ParseExact(fileDate, "yyyy-MM-dd HH:mm:ss", null);
             ReleaseDate = string.IsNullOrEmpty(releaseDate) ? DateTime.MinValue : DateTime.ParseExact(releaseDate, "yyyy-MM-dd", null);

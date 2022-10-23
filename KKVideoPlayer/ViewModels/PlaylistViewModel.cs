@@ -476,7 +476,7 @@ namespace KKVideoPlayer.ViewModels
                        new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
                 {
                     conn.Open();
-                    string sql = string.Empty;
+                    string sql = $"DELETE FROM Files WHERE filepath = @itemPath";
                     SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                     using (SQLiteTransaction tr = conn.BeginTransaction())
@@ -497,9 +497,8 @@ namespace KKVideoPlayer.ViewModels
 
                                 File.Delete(Path.Combine(Root.CurrentVideoDirectory, itemPath));
                             }
-
-                            sql = $"DELETE FROM Files WHERE filepath = '{itemPath}'";
-                            cmd.CommandText = sql;
+                            
+                            cmd.Parameters.AddWithValue("@itemPath", itemPath);
                             cmd.ExecuteNonQuery();
                         }
 

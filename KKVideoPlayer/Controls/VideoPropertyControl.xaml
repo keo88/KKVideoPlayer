@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="KKVideoPlayer.Controls.VideoPropertyControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:KKVideoPlayer.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="25"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="20" />
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock x:Name="PropertyText" Text="{Binding PropertyName}" />
+        <Button Grid.Column="1" Click="Delete_OnClick" Style="{DynamicResource ModernButtonStyle}" Width="20" Height="20" Padding="2, 2" >
+            <Path Stretch="Uniform" Data="{Binding Source={StaticResource ClearIcon}, Path=Data}" Fill="#ff0000" />
+        </Button>
+    </Grid>
+</UserControl>

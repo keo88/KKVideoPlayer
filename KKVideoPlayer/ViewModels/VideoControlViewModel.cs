@@ -9,7 +9,8 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows;
-    using KKVideoPlayer.Foundation;
+    using Controls;
+    using Foundation;
     using static System.Windows.MessageBoxImage;
 
     /// <summary>
@@ -36,13 +37,9 @@
         public VideoControlViewModel(RootViewModel root)
             : base(root)
         {
-            // Initialize.
+            ActorsText = string.Empty;
+            GenresText = string.Empty;
         }
-
-        /// <summary>
-        ///  Info about video maintained through editing process. Used to compare changes.
-        /// </summary>
-        public static List<string> MaintainedVideoInfo { get; set; }
 
         /// <summary>
         /// Parent Window of this control.
@@ -50,13 +47,14 @@
         public Window ParentWindow { get; set; }
 
         /// <summary>
-        ///  A video entry being edited.
+        /// Control for actors.
         /// </summary>
-        public VideoEntry EditedVideo
-        {
-            get => m_EditedVideo;
-            set => SetProperty(ref m_EditedVideo, value);
-        }
+        public VideoPropertyListControl ActorsControl { get; set; }
+
+        /// <summary>
+        /// Control for genres.
+        /// </summary>
+        public VideoPropertyListControl GenresControl { get; set; }
 
         /// <summary>
         ///  File path in string, input from user.
@@ -140,6 +138,20 @@
         }
 
         /// <summary>
+        ///  Info about video maintained through editing process. Used to compare changes.
+        /// </summary>
+        private static List<string> MaintainedVideoInfo { get; set; }
+
+        /// <summary>
+        ///  A video entry being edited.
+        /// </summary>
+        private VideoEntry EditedVideo
+        {
+            get => m_EditedVideo;
+            set => SetProperty(ref m_EditedVideo, value);
+        }
+
+        /// <summary>
         ///  Open Update window.
         /// </summary>
         public void OpenEditControl()
@@ -156,8 +168,12 @@
             string sourceFullPath = Path.Combine(Root.CurrentVideoDirectory, sourcePath);
             bool videoIsOpen = selectedVideo.Filepath.Equals(Root.PlayingVideo?.Filepath, StringComparison.Ordinal);
 
-            ActorsText = string.Join(", ", selectedVideo.Actors);
-            GenresText = string.Join(", ", selectedVideo.Genres);
+            ActorsControl.ResetItems(selectedVideo.Actors);
+
+            // ActorsText = string.Join(", ", selectedVideo.Actors);
+            GenresControl.ResetItems(selectedVideo.Genres);
+
+            // GenresText = string.Join(", ", selectedVideo.Genres);
             DvdIdText = selectedVideo.DvdId;
             TitleText = selectedVideo.Title;
             PathText = selectedVideo.Filepath;
@@ -165,10 +181,7 @@
             DirectorsText = string.Join(", ", selectedVideo.Directors);
             CompaniesText = string.Join(", ", selectedVideo.Companies);
 
-            if (selectedVideo.ReleaseDate.Equals(DateTime.MinValue))
-                ReleaseDateText = string.Empty;
-            else
-                ReleaseDateText = selectedVideo.ReleaseDate.ToString("yyyy-MM-dd");
+            ReleaseDateText = selectedVideo.ReleaseDate.Equals(DateTime.MinValue) ? string.Empty : selectedVideo.ReleaseDate.ToString("yyyy-MM-dd");
 
             MaintainedVideoInfo = new List<string>
             {
@@ -177,6 +190,20 @@
                 sourceFullPath,
                 videoIsOpen.ToString(),
             };
+        }
+
+        /// <summary>
+        /// Apply changes made to video and genres text.
+        /// </summary>
+        public void ApplyActorsAndGenres()
+        {
+            if (!string.IsNullOrWhiteSpace(ActorsText))
+                ActorsControl.AddItems(ActorsText.Split(',').Select(p => p.Trim()).ToList());
+            if (!string.IsNullOrWhiteSpace(GenresText))
+                GenresControl.AddItems(GenresText.Split(',').Select(p => p.Trim()).ToList());
+
+            ActorsText = string.Empty;
+            GenresText = string.Empty;
         }
 
         /// <summary>
@@ -200,18 +227,18 @@
             bool targetExists = File.Exists(targetFullPath);
             bool sourceExists = File.Exists(sourceFullPath);
 
-            // DvdId가 P.Key인데 dvdid가 빈칸이고 다른 곳은 차있으면 DB에 insert가 안되므로 return.
+            // DvdId가 P.Key인데 dvd id가 빈칸이고 다른 곳은 차있으면 DB에 insert가 안되므로 return.
             if (string.IsNullOrWhiteSpace(DvdIdText) && (
-                    !string.IsNullOrWhiteSpace(ActorsText) ||
-                    !string.IsNullOrWhiteSpace(GenresText) ||
+                    ActorsControl.VideoProperties.Any() ||
+                    GenresControl.VideoProperties.Any() ||
                     !string.IsNullOrWhiteSpace(TitleText)))
             {
                 MessageBox.Show("Cannot edit descriptions while the dvdid is empty.");
                 return;
             }
 
-            selectedVideo.Actors = ActorsText.Split(',').Select(p => p.Trim()).ToList();
-            selectedVideo.Genres = GenresText.Split(',').Select(p => p.Trim()).ToList();
+            selectedVideo.Actors = ActorsControl.VideoProperties.ToList();
+            selectedVideo.Genres = GenresControl.VideoProperties.ToList();
             selectedVideo.DvdId = DvdIdText;
             selectedVideo.Title = TitleText;
             selectedVideo.Filepath = PathText;
@@ -232,14 +259,13 @@
                    new SQLiteConnection("Data Source=" + Root.CurrentVideoDirectory + "/deepdark.db"))
             {
                 conn.Open();
-                string sql;
 
                 using (SQLiteTransaction tr = conn.BeginTransaction())
                 {
                     SQLiteCommand cmd = new SQLiteCommand(string.Empty, conn);
                     cmd.Transaction = tr;
 
-                    sql = $"UPDATE Files SET dvdId='{selectedVideo.DvdId}' WHERE filepath = '{sourcePath}'";
+                    string sql = $"UPDATE Files SET dvdId='{selectedVideo.DvdId}' WHERE filepath = '{sourcePath}'";
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
 
@@ -256,6 +282,7 @@
                         cmd.ExecuteNonQuery();
 
                         // target은 없고 source만 존재하면 OS에서 rename 필요.
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         if (sourceExists && !targetExists)
                         {
                             try
@@ -272,8 +299,11 @@
                             }
                             catch (IOException ex)
                             {
-                                _ = MessageBox.Show($"Unable to rename file.\n{ex.Message}", "Error",
-                                    MessageBoxButton.OK, Error);
+                                _ = MessageBox.Show(
+                                    $"Unable to rename file.\n{ex.Message}",
+                                    "Error",
+                                    MessageBoxButton.OK,
+                                    Error);
                                 tr.Rollback();
                                 conn.Close();
                                 return;
@@ -331,8 +361,6 @@
 
             try
             {
-                string extender = fpSplitByDot[^1];
-
                 string[] fpSplitComa = string.Join('.', fpSplitByDot.SkipLast(1)).Split(',');
                 string[] fpSplitSharp = fpSplitComa.Length > 1
                     ? string.Join(',', fpSplitComa.SkipLast(1)).Split('#')
@@ -405,12 +433,9 @@
                         genres.Add(resolution);
                 }
 
-                string actressesStr = string.Join(", ", actors);
-                string tagsStr = string.Join(", ", genres);
-
                 DvdIdText = dvdId;
-                ActorsText = actressesStr;
-                GenresText = tagsStr;
+                ActorsControl.AddItems(actors);
+                GenresControl.AddItems(genres);
                 TitleText = title;
             }
             catch (Exception ex)
@@ -427,7 +452,7 @@
             string[] fpSplitByDot = PathText.Split('.');
             string extender = fpSplitByDot[^1];
 
-            var genresList = GenresText.Split(",")
+            var genresList = GenresControl.VideoProperties
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim()).ToList();
             string actors = string.Empty;
@@ -445,9 +470,10 @@
                 isDuplicateTitle = true;
             }
 
-            if (!string.IsNullOrWhiteSpace(ActorsText))
+            string actorText = string.Join(", ", ActorsControl.VideoProperties);
+            if (!string.IsNullOrWhiteSpace(actorText))
             {
-                actors = "(" + ActorsText + ")";
+                actors = "(" + actorText + ")";
             }
 
             List<string> resolutions = genresList.Where(item => ResolutionTypes.Contains(item)).ToList();

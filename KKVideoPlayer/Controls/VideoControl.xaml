@@ -7,8 +7,8 @@
              xmlns:local="clr-namespace:KKVideoPlayer.Controls"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
-             Background="{StaticResource BackgroundBrush}" Height="600" Width="750"
-             d:DesignHeight="600" d:DesignWidth="800">
+             Background="{StaticResource BackgroundBrush}" Width="750"
+             d:DesignHeight="700" d:DesignWidth="800">
     <UserControl.Resources>
         <Style x:Key="TextBlockStyle" TargetType="TextBlock">
             <Setter Property="Width" Value="130"/>
@@ -47,7 +47,9 @@
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
@@ -59,21 +61,23 @@
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Dvd Id" Style="{StaticResource TextBlockStyle}"/>
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Title" Style="{StaticResource TextBlockStyle}"/>
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Actress" Style="{StaticResource TextBlockStyle}"/>
-            <TextBlock Grid.Row="4" Grid.Column="0" Text="Genre" Style="{StaticResource TextBlockStyle}"/>
-            <TextBlock Grid.Row="5" Grid.Column="0" Text="Release Date" Style="{StaticResource TextBlockStyle}"/>
-            <TextBlock Grid.Row="6" Grid.Column="0" Text="Series" Style="{StaticResource TextBlockStyle}"/>
-            <TextBlock Grid.Row="7" Grid.Column="0" Text="Director" Style="{StaticResource TextBlockStyle}"/>
-            <TextBlock Grid.Row="8" Grid.Column="0" Text="Company" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Genre" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="7" Grid.Column="0" Text="Release Date" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Series" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="9" Grid.Column="0" Text="Director" Style="{StaticResource TextBlockStyle}"/>
+            <TextBlock Grid.Row="10" Grid.Column="0" Text="Company" Style="{StaticResource TextBlockStyle}"/>
 
             <TextBox x:Name="UpdatedFilepath" Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.PathText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedDvdId" Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DvdIdText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedTitle" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.TitleText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedActresses" Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ActorsText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedGenres" Grid.Row="4" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.GenresText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedReleasedate" Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedSeries" Grid.Row="6" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedDirector" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DirectorsText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedCompany" Grid.Row="8" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.CompaniesText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedActresses" Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ActorsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnKeyPressed"/>
+            <local:VideoPropertyListControl x:Name="ActorsListControl" Grid.Row="4" Grid.Column="1" MaxWidth="750" />
+            <TextBox x:Name="UpdatedGenres" Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.GenresText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnKeyPressed"/>
+            <local:VideoPropertyListControl x:Name="GenresListControl" Grid.Row="6" Grid.Column="1" MaxWidth="750" />
+            <TextBox x:Name="UpdatedReleasedate" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedSeries" Grid.Row="8" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedDirector" Grid.Row="9" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DirectorsText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedCompany" Grid.Row="10" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.CompaniesText, Mode=TwoWay}"/>
         </Grid>
         <Grid DockPanel.Dock="Bottom" Height="90">
             <Grid.RowDefinitions>
