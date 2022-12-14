@@ -1,4 +1,6 @@
-﻿namespace KKVideoPlayer.ViewModels
+﻿using KKVideoPlayer.Models;
+
+namespace KKVideoPlayer.ViewModels
 {
     using System;
     using System.Collections.Generic;
@@ -29,6 +31,9 @@
         private string m_DirectorsText;
         private string m_CompaniesText;
         private VideoEntry m_EditedVideo;
+
+        private VideoProperty m_AutoCompleteActorSelection;
+        private VideoProperty m_AutoCompleteGenreSelection;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoControlViewModel"/> class.
@@ -135,6 +140,18 @@
         {
             get => m_CompaniesText;
             set => SetProperty(ref m_CompaniesText, value);
+        }
+
+        public VideoProperty AutoCompleteActorSelection
+        {
+            get => m_AutoCompleteActorSelection;
+            set => SetProperty(ref m_AutoCompleteActorSelection, value);
+        }
+        
+        public VideoProperty AutoCompleteGenreSelection
+        {
+            get => m_AutoCompleteGenreSelection;
+            set => SetProperty(ref m_AutoCompleteGenreSelection, value);
         }
 
         /// <summary>

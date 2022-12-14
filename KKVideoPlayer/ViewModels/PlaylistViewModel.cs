@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using KKVideoPlayer.Models;
 
 namespace KKVideoPlayer.ViewModels
 {
@@ -29,16 +30,16 @@ namespace KKVideoPlayer.ViewModels
         // Constants
         private const int MinimumSearchLength = 2;
 
-        private static string[] VideoExtensions =
-            {"mp4", "mov", "wmv", "avi", "avchd", "flv", "f4v", "swf", "mkv", "webm"};
+        private static readonly string[] VideoExtensions =
+            {"mp4", "mov", "wmv", "avi", "avchd", "flv", "f4v", "swf", "mkv", "webm" };
 
-        private static string[] SubtitleExtensions = {"srt", "smi"};
+        private static readonly string[] SubtitleExtensions = { "srt", "smi" };
 
         // Private state management
-        private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
-        private bool HasTakenThumbnail;
-        private DeferredAction SearchAction;
-        private string FilterString = string.Empty;
+        private readonly TimeSpan searchActionDelay = TimeSpan.FromSeconds(0.25);
+        private bool hasTakenThumbnail;
+        private DeferredAction searchAction;
+        private string filterString = string.Empty;
 
         // Property Backing
         private bool m_IsInOpenMode = App.IsInDesignMode;
@@ -57,9 +58,11 @@ namespace KKVideoPlayer.ViewModels
         {
             if (root == null) throw new ArgumentNullException(nameof(root));
 
-            Videos = new ObservableCollection<VideoEntry>();
-            VideosViewSource = new CollectionViewSource();
-            VideosViewSource.Source = Videos;
+            Videos = VideosCollection.Instance;
+            VideosViewSource = new CollectionViewSource
+            {
+                Source = Videos,
+            };
 
             PlaylistTemplate = TemplateType.ContentTemplate;
 
@@ -202,23 +205,23 @@ namespace KKVideoPlayer.ViewModels
                 if (!SetProperty(ref m_PlaylistSearchString, value))
                     return;
 
-                if (SearchAction == null)
+                if (searchAction == null)
                 {
-                    SearchAction = DeferredAction.Create(context =>
+                    searchAction = DeferredAction.Create(context =>
                     {
                         var futureSearch = PlaylistSearchString ?? string.Empty;
-                        var currentSearch = FilterString ?? string.Empty;
+                        var currentSearch = filterString ?? string.Empty;
 
                         if (currentSearch == futureSearch) return;
                         if (futureSearch.Length < MinimumSearchLength &&
                             currentSearch.Length < MinimumSearchLength) return;
 
                         EntriesView.Refresh();
-                        FilterString = new string(m_PlaylistSearchString.ToCharArray());
+                        filterString = new string(m_PlaylistSearchString.ToCharArray());
                     });
                 }
 
-                SearchAction.Defer(SearchActionDelay);
+                searchAction.Defer(searchActionDelay);
             }
         }
 
@@ -277,7 +280,7 @@ namespace KKVideoPlayer.ViewModels
         /// <summary>
         ///  Itemsource to FileLists.
         /// </summary>
-        public ObservableCollection<VideoEntry> Videos { get; set; }
+        public VideosCollection Videos { get; set; }
 
         /// <summary>
         ///  A collection View source for Playlists.
@@ -761,7 +764,7 @@ namespace KKVideoPlayer.ViewModels
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void OnMediaOpened(object sender, EventArgs e)
         {
-            HasTakenThumbnail = false;
+            hasTakenThumbnail = false;
             var m = Root.MediaElement;
             /*
             Entries.AddOrUpdateEntry(m.Source, m.MediaInfo);
@@ -778,7 +781,7 @@ namespace KKVideoPlayer.ViewModels
         {
             const double snapshotPosition = 3;
 
-            if (HasTakenThumbnail) return;
+            if (hasTakenThumbnail) return;
 
             var state = e.EngineState;
 

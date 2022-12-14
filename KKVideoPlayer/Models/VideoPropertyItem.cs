@@ -2,9 +2,8 @@
 {
     using System;
 
-    public class VideoPropertyItem
+    public class VideoPropertyItem : VideoProperty
     {
-        public string PropName { get; set; }
         public Action OnClick { get; set; }
 
         /// <summary>
@@ -13,8 +12,8 @@
         /// <param name="propName">Name of video property.</param>
         /// <param name="onClick">Click event on item.</param>
         public VideoPropertyItem(string propName, Action onClick)
+            : base(propName)
         {
-            PropName = propName;
             OnClick = onClick;
         }
     }

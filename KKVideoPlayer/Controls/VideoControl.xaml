@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:KKVideoPlayer.ViewModels"
+             xmlns:srv="clr-namespace:KKVideoPlayer.Services"
+             xmlns:acb="http://wpfcontrols.com/"
              xmlns:local="clr-namespace:KKVideoPlayer.Controls"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
@@ -35,6 +37,21 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <DataTemplate x:Key="PropertyItemTemplate">
+            <Grid Grid.IsSharedSizeScope="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="16" SharedSizeGroup="AutoColor" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="AutoName" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="AutoDesc" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="5,0,0,0"
+                    Text="{Binding PropName}" />
+            </Grid>
+        </DataTemplate>
+        <srv:ActorAutoCompleteService x:Key="ActorAutoCompleteService" />
+        <srv:GenreAutoCompleteService x:Key="GenreAutoCompleteService" />
     </UserControl.Resources>
     <DockPanel>
         <Grid DockPanel.Dock="Top">
@@ -70,11 +87,51 @@
             <TextBox x:Name="UpdatedFilepath" Grid.Row="0" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.PathText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedDvdId" Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DvdIdText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedTitle" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.TitleText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedActresses" Grid.Row="3" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ActorsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnKeyPressed"/>
+            <acb:AutoCompleteTextBox Grid.Row="3" Grid.Column="1"
+                                     x:Name="UpdatedActresses"
+                                     Height="26"
+                                     Margin="0,0,6,0"
+                                     HorizontalAlignment="Stretch"
+                                     CharacterCasing="Upper"
+                                     DisplayMember="PropName"
+                                     ItemTemplate="{StaticResource ResourceKey=PropertyItemTemplate}"
+                                     MaxLength="50"
+                                     Provider="{StaticResource ResourceKey=ActorAutoCompleteService}"
+                                     Text="{Binding VideoCtrl.ActorsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     SelectedItem="{Binding VideoCtrl.AutoCompleteActorSelection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Watermark="Press Enter To Add"
+                                     KeyUp="OnKeyPressed">
+                <acb:AutoCompleteTextBox.LoadingContent>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        Text="Loading..." />
+                </acb:AutoCompleteTextBox.LoadingContent>
+            </acb:AutoCompleteTextBox>
             <local:VideoPropertyListControl x:Name="ActorsListControl" Grid.Row="4" Grid.Column="1" MaxWidth="750" />
-            <TextBox x:Name="UpdatedGenres" Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.GenresText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnKeyPressed"/>
+            <acb:AutoCompleteTextBox Grid.Row="5" Grid.Column="1"
+                                     x:Name="UpdatedGenres"
+                                     Height="26"
+                                     Margin="0,0,6,0"
+                                     HorizontalAlignment="Stretch"
+                                     CharacterCasing="Upper"
+                                     DisplayMember="PropName"
+                                     ItemTemplate="{StaticResource ResourceKey=PropertyItemTemplate}"
+                                     MaxLength="50"
+                                     Provider="{StaticResource ResourceKey=GenreAutoCompleteService}"
+                                     Text="{Binding VideoCtrl.GenresText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     SelectedItem="{Binding VideoCtrl.AutoCompleteGenreSelection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Watermark="Press Enter To Add"
+                                     KeyUp="OnKeyPressed">
+                <acb:AutoCompleteTextBox.LoadingContent>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        Text="Loading..." />
+                </acb:AutoCompleteTextBox.LoadingContent>
+            </acb:AutoCompleteTextBox>
             <local:VideoPropertyListControl x:Name="GenresListControl" Grid.Row="6" Grid.Column="1" MaxWidth="750" />
-            <TextBox x:Name="UpdatedReleasedate" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
+            <TextBox x:Name="UpdatedReleaseDate" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedSeries" Grid.Row="8" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedDirector" Grid.Row="9" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DirectorsText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedCompany" Grid.Row="10" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.CompaniesText, Mode=TwoWay}"/>

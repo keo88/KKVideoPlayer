@@ -94,8 +94,6 @@
         private void OnKeyPressed(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return) return;
-
-            Debug.Print($"Text: {UpdatedActresses.Text} {App.ViewModel.VideoCtrl.ActorsText}");
             App.ViewModel.VideoCtrl.ApplyActorsAndGenres();
         }
     }
