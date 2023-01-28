@@ -52,6 +52,7 @@
         </DataTemplate>
         <srv:ActorAutoCompleteService x:Key="ActorAutoCompleteService" />
         <srv:GenreAutoCompleteService x:Key="GenreAutoCompleteService" />
+        <srv:SeriesAutoCompleteService x:Key="SeriesAutoCompleteService" />
     </UserControl.Resources>
     <DockPanel>
         <Grid DockPanel.Dock="Top">
@@ -89,8 +90,7 @@
             <TextBox x:Name="UpdatedTitle" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.TitleText, Mode=TwoWay}"/>
             <acb:AutoCompleteTextBox Grid.Row="3" Grid.Column="1"
                                      x:Name="UpdatedActresses"
-                                     Height="26"
-                                     Margin="0,0,6,0"
+                                     Height="30"
                                      HorizontalAlignment="Stretch"
                                      CharacterCasing="Upper"
                                      DisplayMember="PropName"
@@ -111,8 +111,7 @@
             <local:VideoPropertyListControl x:Name="ActorsListControl" Grid.Row="4" Grid.Column="1" MaxWidth="750" />
             <acb:AutoCompleteTextBox Grid.Row="5" Grid.Column="1"
                                      x:Name="UpdatedGenres"
-                                     Height="26"
-                                     Margin="0,0,6,0"
+                                     Height="30"
                                      HorizontalAlignment="Stretch"
                                      CharacterCasing="Upper"
                                      DisplayMember="PropName"
@@ -132,7 +131,26 @@
             </acb:AutoCompleteTextBox>
             <local:VideoPropertyListControl x:Name="GenresListControl" Grid.Row="6" Grid.Column="1" MaxWidth="750" />
             <TextBox x:Name="UpdatedReleaseDate" Grid.Row="7" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.ReleaseDateText, Mode=TwoWay}"/>
-            <TextBox x:Name="UpdatedSeries" Grid.Row="8" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay}"/>
+            <acb:AutoCompleteTextBox Grid.Row="8" Grid.Column="1"
+                                     x:Name="UpdatedSeries"
+                                     Height="30" 
+                                     Background="White"
+                                     Foreground="Black"
+                                     HorizontalAlignment="Stretch"
+                                     CharacterCasing="Upper"
+                                     DisplayMember="PropName"
+                                     ItemTemplate="{StaticResource ResourceKey=PropertyItemTemplate}"
+                                     MaxLength="50"
+                                     Provider="{StaticResource ResourceKey=SeriesAutoCompleteService}"
+                                     Text="{Binding VideoCtrl.SeriesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            >
+                <acb:AutoCompleteTextBox.LoadingContent>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        Text="Loading..." />
+                </acb:AutoCompleteTextBox.LoadingContent>
+            </acb:AutoCompleteTextBox>
             <TextBox x:Name="UpdatedDirector" Grid.Row="9" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.DirectorsText, Mode=TwoWay}"/>
             <TextBox x:Name="UpdatedCompany" Grid.Row="10" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding VideoCtrl.CompaniesText, Mode=TwoWay}"/>
         </Grid>
