@@ -45,7 +45,17 @@
             if (Directory.Exists(AppDataDirectory) == false)
                 Directory.CreateDirectory(AppDataDirectory);
 
-            AppConfig = ApplicationConfig.Load(AppDataDirectory + "/config.xml");
+            var configPath = AppDataDirectory + "/config.xml";
+            if (!File.Exists(configPath))
+            {
+                AppConfig = new ApplicationConfig();
+                ApplicationConfig.Save(configPath, AppConfig);
+            }
+            else
+            {
+                AppConfig = ApplicationConfig.Load(configPath);
+            }
+
             Crawler = new WebCrawlDriver();
 
             // Attached ViewModel Initialization
